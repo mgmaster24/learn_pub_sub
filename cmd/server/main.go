@@ -8,6 +8,9 @@ import (
 	"syscall"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+
+	"github.com/bootdotdev/learn-pub-sub-starter/internal/pubsub"
+	"github.com/bootdotdev/learn-pub-sub-starter/internal/routing"
 )
 
 func main() {
@@ -22,6 +25,14 @@ func main() {
 
 	fmt.Println("Connected to Rabbitmq...")
 
+	ch, err := c.Channel()
+	if err != nil {
+		return
+	}
+
+	pubsub.PublishJSON(ch, routing.ExchangePerilDirect, routing.PauseKey, routing.PlayingState{
+		IsPaused: true,
+	})
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
